@@ -16,7 +16,7 @@ public struct GlassHUDView: View {
                 expandedLayout
             }
         }
-        .padding(monitor.isCompactMode ? 10 : 16)
+        .padding(monitor.isCompactMode ? 10 : 15)
         .background(
             RoundedRectangle(cornerRadius: monitor.isCompactMode ? 16 : 22, style: .continuous)
                 .fill(.ultraThinMaterial)
@@ -50,7 +50,7 @@ public struct GlassHUDView: View {
     
     // MARK: - Expanded Layout
     private var expandedLayout: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 11) {
             // Header Bar
             HStack(alignment: .center) {
                 // Live Pulse Dot & Title
@@ -65,6 +65,23 @@ public struct GlassHUDView: View {
                         .tracking(1.2)
                         .foregroundColor(.white.opacity(0.85))
                 }
+                
+                Spacer()
+                
+                // System Thermal & Load Badge
+                HStack(spacing: 4) {
+                    Circle()
+                        .fill(monitor.health.thermalState.color)
+                        .frame(width: 5, height: 5)
+                    
+                    Text(String(format: "%.1f load • %@", monitor.health.load1m, monitor.health.uptimeFormatted))
+                        .font(.system(size: 9, weight: .medium, design: .monospaced))
+                        .foregroundColor(.white.opacity(0.55))
+                }
+                .padding(.horizontal, 6)
+                .padding(.vertical, 3)
+                .background(Color.white.opacity(0.04))
+                .clipShape(Capsule())
                 
                 Spacer()
                 
@@ -114,15 +131,15 @@ public struct GlassHUDView: View {
                 }
             }
             
-            // Primary Gauges Row (CPU & RAM)
+            // Primary Gauges Row (CPU & RAM + Pressure)
             HStack(spacing: 16) {
                 CircularGaugeView(
-                    title: "Processor",
+                    title: "CPU",
                     icon: "cpu",
                     percent: monitor.cpu.usagePercent,
                     subtitle: String(format: "Sys: %.0f%%", monitor.cpu.systemPercent),
                     gradient: [.cyan, .blue],
-                    size: 84
+                    size: 82
                 )
                 
                 CircularGaugeView(
@@ -131,7 +148,9 @@ public struct GlassHUDView: View {
                     percent: monitor.memory.usedPercent,
                     subtitle: monitor.memory.usedFormatted,
                     gradient: [.purple, .indigo],
-                    size: 84
+                    size: 82,
+                    statusDotColor: monitor.memory.pressure.color,
+                    statusDotText: monitor.memory.pressure.rawValue
                 )
             }
             .padding(.vertical, 2)
@@ -139,14 +158,17 @@ public struct GlassHUDView: View {
             // CPU Load History Sparkline Graph
             SparklineGraphView(
                 data: monitor.cpu.history,
-                title: "CPU ACTIVITY (RECENT)",
+                title: "CPU LOAD HISTORY",
                 gradient: [.cyan, .teal],
-                height: 34
+                height: 32
             )
             
+            // Top Resource-Heavy Processes Card
+            TopProcessesView(processes: monitor.topProcesses)
+            
             // Secondary Metric Cards
-            VStack(spacing: 6) {
-                // Network Down / Up Card
+            VStack(spacing: 5) {
+                // Network Down / Up Card with Wi-Fi indicator
                 HStack(spacing: 6) {
                     MetricCardView(
                         icon: "arrow.down",
@@ -159,7 +181,8 @@ public struct GlassHUDView: View {
                         icon: "arrow.up",
                         iconColor: .orange,
                         title: "UPLOAD",
-                        primaryValue: monitor.network.uploadFormatted
+                        primaryValue: monitor.network.uploadFormatted,
+                        secondaryValue: monitor.health.hasWiFi ? "\(monitor.health.wifiRSSI) dBm" : nil
                     )
                 }
                 
@@ -184,20 +207,26 @@ public struct GlassHUDView: View {
                 }
             }
         }
-        .frame(width: 228)
+        .frame(width: 242)
     }
     
     // MARK: - Compact Mini Bar Layout
     private var compactLayout: some View {
-        HStack(spacing: 12) {
-            // Live Dot
-            Circle()
-                .fill(Color.green)
-                .frame(width: 6, height: 6)
-                .shadow(color: .green.opacity(0.8), radius: 2)
+        HStack(spacing: 10) {
+            // Live Dot & Thermal state
+            HStack(spacing: 4) {
+                Circle()
+                    .fill(Color.green)
+                    .frame(width: 6, height: 6)
+                    .shadow(color: .green.opacity(0.8), radius: 2)
+                
+                Circle()
+                    .fill(monitor.health.thermalState.color)
+                    .frame(width: 4, height: 4)
+            }
             
             // CPU Pill
-            HStack(spacing: 4) {
+            HStack(spacing: 3) {
                 Image(systemName: "cpu")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.cyan)
@@ -206,15 +235,37 @@ public struct GlassHUDView: View {
                     .foregroundColor(.white)
             }
             
+            // Top Process Pill (if significant load)
+            if let top = monitor.topProcesses.first, top.cpuPercent >= 15.0 {
+                Divider()
+                    .frame(height: 12)
+                    .background(Color.white.opacity(0.15))
+                
+                HStack(spacing: 3) {
+                    Image(systemName: "flame.fill")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundColor(.orange)
+                    Text("\(top.name) \(Int(top.cpuPercent))%")
+                        .font(.system(size: 10, weight: .medium, design: .monospaced))
+                        .foregroundColor(.white.opacity(0.85))
+                        .lineLimit(1)
+                }
+            }
+            
             Divider()
                 .frame(height: 12)
                 .background(Color.white.opacity(0.15))
             
-            // RAM Pill
+            // RAM Pill with pressure dot
             HStack(spacing: 4) {
                 Image(systemName: "memorychip")
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.purple)
+                
+                Circle()
+                    .fill(monitor.memory.pressure.color)
+                    .frame(width: 4, height: 4)
+                
                 Text("\(Int(monitor.memory.usedPercent.rounded()))%")
                     .font(.system(size: 12, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
@@ -225,7 +276,7 @@ public struct GlassHUDView: View {
                 .background(Color.white.opacity(0.15))
             
             // Net Speed Pill
-            HStack(spacing: 4) {
+            HStack(spacing: 3) {
                 Image(systemName: "arrow.down")
                     .font(.system(size: 10, weight: .semibold))
                     .foregroundColor(.mint)

@@ -9,6 +9,8 @@ public final class SystemMonitor: ObservableObject {
     @Published public var network: NetworkStats = NetworkStats()
     @Published public var disk: DiskStats = DiskStats()
     @Published public var battery: BatteryStats = BatteryStats()
+    @Published public var topProcesses: [ProcessItem] = []
+    @Published public var health: SystemHealthStats = SystemHealthStats()
     
     @Published public var refreshInterval: Double = 1.0 {
         didSet {
@@ -31,9 +33,11 @@ public final class SystemMonitor: ObservableObject {
     private let networkMonitor = NetworkMonitor()
     private let diskMonitor = DiskMonitor()
     private let batteryMonitor = BatteryMonitor()
+    private let processMonitor = ProcessMonitor()
+    private let healthMonitor = SystemHealthMonitor()
     
     private var timerTask: Task<Void, Never>?
-    private var diskCounter = 0
+    private var tickCount = 0
     
     public init() {
         refreshAll()
@@ -49,12 +53,14 @@ public final class SystemMonitor: ObservableObject {
         self.memory = self.memoryMonitor.sample()
         self.network = self.networkMonitor.sample()
         self.battery = self.batteryMonitor.sample()
+        self.health = self.healthMonitor.sample()
+        self.topProcesses = self.processMonitor.sample()
         
-        // Disk stats don't change every second; refresh every 5 ticks to save IO
-        if diskCounter % 5 == 0 {
+        // Disk stats refresh every 5 ticks to save IO
+        if tickCount % 5 == 0 {
             self.disk = self.diskMonitor.sample()
         }
-        diskCounter += 1
+        tickCount += 1
     }
     
     private func startTimer() {

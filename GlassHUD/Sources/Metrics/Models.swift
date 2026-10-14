@@ -1,4 +1,18 @@
 import Foundation
+import SwiftUI
+
+public struct ProcessItem: Identifiable, Sendable {
+    public var id: pid_t { pid }
+    public var pid: pid_t
+    public var name: String
+    public var cpuPercent: Double
+    
+    public init(pid: pid_t, name: String, cpuPercent: Double) {
+        self.pid = pid
+        self.name = name
+        self.cpuPercent = cpuPercent
+    }
+}
 
 public struct CPUStats: Sendable {
     public var usagePercent: Double = 0.0
@@ -16,11 +30,26 @@ public struct CPUStats: Sendable {
     }
 }
 
+public enum MemoryPressureState: String, Sendable {
+    case normal = "Normal"
+    case warning = "Warning"
+    case critical = "Critical"
+    
+    public var color: Color {
+        switch self {
+        case .normal: return .green
+        case .warning: return .yellow
+        case .critical: return .red
+        }
+    }
+}
+
 public struct MemoryStats: Sendable {
     public var usedBytes: UInt64 = 0
     public var totalBytes: UInt64 = 0
     public var usedPercent: Double = 0.0
     public var freeBytes: UInt64 = 0
+    public var pressure: MemoryPressureState = .normal
     
     public var usedFormatted: String {
         ByteCountFormatter.string(fromByteCount: Int64(usedBytes), countStyle: .memory)
@@ -30,11 +59,50 @@ public struct MemoryStats: Sendable {
         ByteCountFormatter.string(fromByteCount: Int64(totalBytes), countStyle: .memory)
     }
     
-    public init(usedBytes: UInt64 = 0, totalBytes: UInt64 = 0, usedPercent: Double = 0.0, freeBytes: UInt64 = 0) {
+    public init(usedBytes: UInt64 = 0, totalBytes: UInt64 = 0, usedPercent: Double = 0.0, freeBytes: UInt64 = 0, pressure: MemoryPressureState = .normal) {
         self.usedBytes = usedBytes
         self.totalBytes = totalBytes
         self.usedPercent = usedPercent
         self.freeBytes = freeBytes
+        self.pressure = pressure
+    }
+}
+
+public enum ThermalStateLabel: String, Sendable {
+    case nominal = "Nominal"
+    case fair = "Fair"
+    case serious = "Hot"
+    case critical = "Throttling"
+    
+    public var color: Color {
+        switch self {
+        case .nominal: return .green
+        case .fair: return .yellow
+        case .serious: return .orange
+        case .critical: return .red
+        }
+    }
+}
+
+public struct SystemHealthStats: Sendable {
+    public var load1m: Double = 0.0
+    public var load5m: Double = 0.0
+    public var load15m: Double = 0.0
+    public var uptimeFormatted: String = ""
+    public var thermalState: ThermalStateLabel = .nominal
+    public var wifiRSSI: Int = 0
+    public var wifiBars: Int = 0
+    public var hasWiFi: Bool = false
+    
+    public init(load1m: Double = 0.0, load5m: Double = 0.0, load15m: Double = 0.0, uptimeFormatted: String = "", thermalState: ThermalStateLabel = .nominal, wifiRSSI: Int = 0, wifiBars: Int = 0, hasWiFi: Bool = false) {
+        self.load1m = load1m
+        self.load5m = load5m
+        self.load15m = load15m
+        self.uptimeFormatted = uptimeFormatted
+        self.thermalState = thermalState
+        self.wifiRSSI = wifiRSSI
+        self.wifiBars = wifiBars
+        self.hasWiFi = hasWiFi
     }
 }
 

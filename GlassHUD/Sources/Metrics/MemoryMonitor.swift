@@ -30,11 +30,27 @@ public final class MemoryMonitor {
         let free = totalPhysicalMemory > used ? (totalPhysicalMemory - used) : 0
         let percent = min(max((Double(used) / Double(totalPhysicalMemory)) * 100.0, 0.0), 100.0)
         
+        // Query macOS memory pressure level via sysctl
+        var pressureLevel: Int32 = 1
+        var size = MemoryLayout<Int32>.size
+        _ = sysctlbyname("kern.memorystatus_vm_pressure_level", &pressureLevel, &size, nil, 0)
+        
+        let pressureState: MemoryPressureState
+        switch pressureLevel {
+        case 2:
+            pressureState = .warning
+        case 4:
+            pressureState = .critical
+        default:
+            pressureState = .normal
+        }
+        
         return MemoryStats(
             usedBytes: used,
             totalBytes: totalPhysicalMemory,
             usedPercent: percent,
-            freeBytes: free
+            freeBytes: free,
+            pressure: pressureState
         )
     }
 }

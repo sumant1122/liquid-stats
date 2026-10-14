@@ -6,7 +6,9 @@ public struct CircularGaugeView: View {
     public let percent: Double
     public let subtitle: String
     public let gradient: [Color]
-    public var size: CGFloat = 88
+    public var size: CGFloat = 84
+    public var statusDotColor: Color? = nil
+    public var statusDotText: String? = nil
     
     public init(
         title: String,
@@ -14,7 +16,9 @@ public struct CircularGaugeView: View {
         percent: Double,
         subtitle: String,
         gradient: [Color],
-        size: CGFloat = 88
+        size: CGFloat = 84,
+        statusDotColor: Color? = nil,
+        statusDotText: String? = nil
     ) {
         self.title = title
         self.icon = icon
@@ -22,6 +26,8 @@ public struct CircularGaugeView: View {
         self.subtitle = subtitle
         self.gradient = gradient
         self.size = size
+        self.statusDotColor = statusDotColor
+        self.statusDotText = statusDotText
     }
     
     private var progress: Double {
@@ -71,10 +77,21 @@ public struct CircularGaugeView: View {
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundColor(.white.opacity(0.9))
                 
-                Text(subtitle)
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.55))
-                    .lineLimit(1)
+                if let dotColor = statusDotColor, let dotText = statusDotText {
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(dotColor)
+                            .frame(width: 5, height: 5)
+                        Text(dotText)
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.75))
+                    }
+                } else {
+                    Text(subtitle)
+                        .font(.system(size: 10, weight: .medium, design: .monospaced))
+                        .foregroundColor(.white.opacity(0.55))
+                        .lineLimit(1)
+                }
             }
         }
     }

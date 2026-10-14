@@ -30,6 +30,7 @@ swiftc \
     -framework Cocoa \
     -framework SwiftUI \
     -framework IOKit \
+    -framework CoreWLAN \
     -O \
     -o "$MACOS_DIR/GlassHUD" \
     "${SOURCES[@]}"
