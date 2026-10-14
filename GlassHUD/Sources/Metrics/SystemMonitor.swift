@@ -18,7 +18,11 @@ public final class SystemMonitor: ObservableObject {
         }
     }
     
-    @Published public var isCompactMode: Bool = false
+    @Published public var isCompactMode: Bool = false {
+        didSet {
+            onModeChanged?(isCompactMode)
+        }
+    }
     @Published public var isPinned: Bool = true {
         didSet {
             onPinChanged?(isPinned)
@@ -26,6 +30,7 @@ public final class SystemMonitor: ObservableObject {
     }
     
     public var onPinChanged: ((Bool) -> Void)?
+    public var onModeChanged: ((Bool) -> Void)?
     public var onCloseRequested: (() -> Void)?
     
     private let cpuMonitor = CPUMonitor()

@@ -16,11 +16,11 @@ public struct GlassHUDView: View {
                 expandedLayout
             }
         }
-        .padding(monitor.isCompactMode ? 10 : 15)
+        .padding(monitor.isCompactMode ? 10 : 14)
         .background(
             RoundedRectangle(cornerRadius: monitor.isCompactMode ? 16 : 22, style: .continuous)
                 .fill(.ultraThinMaterial)
-                .shadow(color: Color.black.opacity(0.35), radius: 18, x: 0, y: 8)
+                .shadow(color: Color.black.opacity(0.35), radius: 12, x: 0, y: 6)
         )
         .overlay(
             RoundedRectangle(cornerRadius: monitor.isCompactMode ? 16 : 22, style: .continuous)
@@ -37,6 +37,7 @@ public struct GlassHUDView: View {
                     lineWidth: 1
                 )
         )
+        .padding(10)
         .onHover { hovering in
             withAnimation(.easeInOut(duration: 0.18)) {
                 isHovering = hovering
