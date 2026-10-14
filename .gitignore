@@ -1,0 +1,22 @@
+# macOS System Files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Build artifacts
+build/
+bin/
+*.o
+*.app
+*.dSYM
+*.pcm
+.clang-cache/
+/tmp/clang-cache
+
+# Xcode / SPM
+.build/
+.swiftpm/
+DerivedData/
+*.xcodeproj
+*.xcworkspace
