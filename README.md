@@ -8,6 +8,9 @@ A lightweight, native **floating frosted-glass system monitor** for macOS built 
 
 ---
 
+<img width="850" height="536" alt="Screenshot 2026-10-14 at 9 51 26 PM" src="https://github.com/user-attachments/assets/cd37b234-68de-45b0-a40c-301866da4ae8" />
+
+
 ## ✨ Features
 
 - **Liquid Frosted Glass (`.ultraThinMaterial`)**: Real-time translucent blur that adapts beautifully over dark and light windows/wallpapers.
