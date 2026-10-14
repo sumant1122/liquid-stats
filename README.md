@@ -1,8 +1,8 @@
-# GlassHUD 🪟⚡
+# LiquidStats 🪟⚡
 
 A lightweight, native **floating frosted-glass system monitor** for macOS built with Swift and SwiftUI.
 
-![GlassHUD Preview](https://img.shields.io/badge/macOS-14.0%2B-blue?style=flat-square&logo=apple)
+![LiquidStats](https://img.shields.io/badge/macOS-14.0%2B-blue?style=flat-square&logo=apple)
 ![Swift](https://img.shields.io/badge/Swift-6.0%2B-orange?style=flat-square&logo=swift)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
