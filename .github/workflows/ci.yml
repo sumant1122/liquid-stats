@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build & Verify (macOS)
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Show Swift & macOS Info
+        run: |
+          swift --version
+          sw_vers
+
+      - name: Build LiquidStats App Bundle
+        run: |
+          ./GlassHUD/build.sh
+
+      - name: Verify Bundle Output
+        run: |
+          test -d build/GlassHUD.app
+          test -f build/GlassHUD.app/Contents/MacOS/GlassHUD
+          echo "Build verification successful!"
