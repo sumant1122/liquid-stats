@@ -60,9 +60,9 @@ public struct GlassHUDView: View {
                         .frame(width: 7, height: 7)
                         .shadow(color: .green.opacity(0.7), radius: 3)
                     
-                    Text("GLASS HUD")
+                    Text("SYSTEM STATS")
                         .font(.system(size: 11, weight: .bold, design: .rounded))
-                        .tracking(1.2)
+                        .tracking(1.0)
                         .foregroundColor(.white.opacity(0.85))
                 }
                 
@@ -338,7 +338,7 @@ public struct GlassHUDView: View {
         
         Divider()
         
-        Button("Quit GlassHUD") {
+        Button("Quit System Stats") {
             monitor.onCloseRequested?()
         }
     }
