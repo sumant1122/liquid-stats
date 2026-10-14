@@ -60,6 +60,7 @@ public final class ProcessMonitor {
         guard intervalSec > 0.2 else { return [] }
         let intervalNs = intervalSec * 1_000_000_000.0
         
+        let oldSamples = previousSamples
         previousSamples = currentSamples
         lastSampleTime = now
         
@@ -67,12 +68,13 @@ public final class ProcessMonitor {
         var aggregated: [String: (pid: pid_t, cpuPercent: Double)] = [:]
         
         for (pid, current) in currentSamples {
-            guard let prev = previousSamples[pid] else { continue }
+            guard let prev = oldSamples[pid] else { continue }
             if current.totalTime >= prev.totalTime {
                 let deltaNs = Double(current.totalTime - prev.totalTime)
                 let percent = (deltaNs / intervalNs) * 100.0
                 
-                if percent >= 0.2 {
+                // Keep processes with at least minimal activity and ignore self
+                if percent >= 0.05 && current.name != "GlassHUD" {
                     let cleanName = cleanProcessName(current.name)
                     if let existing = aggregated[cleanName] {
                         aggregated[cleanName] = (pid: existing.pid, cpuPercent: existing.cpuPercent + percent)
