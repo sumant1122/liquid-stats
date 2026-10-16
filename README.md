@@ -38,6 +38,21 @@ A lightweight, native **floating frosted-glass system monitor** for macOS built 
 
 ---
 
+## ⚡ Performance & Benchmarks
+
+LiquidStats queries macOS via direct in-memory Mach traps rather than spawning subshells (`top` or `ps`):
+
+| Metric / Operation | Latency | Description |
+| :--- | :---: | :--- |
+| **Mach CPU Load Info** | **0.51 µs** | Direct kernel trap reading CPU counters |
+| **Mach VM & Memory Pressure** | **1.46 µs** | In-memory VM statistics & `sysctl` |
+| **Full 1s Tick Duration** | **~0.33 ms** | LiquidStats is **99.97% asleep** every second |
+| **Memory Footprint (RSS)** | **~70 MB** | vs. 300–600 MB for typical Electron monitors |
+
+👉 **Read the full benchmark report in [BENCHMARKS.md](BENCHMARKS.md)** or run `make benchmark` to test your own machine.
+
+---
+
 ## 🚀 Quick Start
 
 ### Build & Run
