@@ -8,7 +8,8 @@ A lightweight, native **floating frosted-glass system monitor** for macOS built 
 
 ---
 
-<img width="850" height="536" alt="Screenshot 2026-10-14 at 9 51 26 PM" src="https://github.com/user-attachments/assets/cd37b234-68de-45b0-a40c-301866da4ae8" />
+<img width="836" height="530" alt="Liquidstats" src="https://github.com/user-attachments/assets/fb570a05-90b9-4f8c-9368-f28be7e85e1a" />
+
 
 
 ## ✨ Features
