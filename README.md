@@ -17,18 +17,20 @@ A lightweight, native **floating frosted-glass system monitor** for macOS built 
 - **True Floating Window**: Borderless, floating level (`NSWindow.Level.floating`) that can join all virtual Desktops/Spaces.
 - **Draggable Anywhere**: Click and drag from any part of the glass background to position it on your display.
 - **Dual Display Modes**:
-  - **Expanded Mode**: Full radial gauges, live CPU activity sparkline graph, top resource-heavy processes, memory pressure, thermals & load averages, network speeds, Wi-Fi signal, disk metrics, and battery status.
-  - **Compact Mode**: Ultra-slim horizontal floating pill showing core stats (CPU, RAM, Top App badge, Network, Battery).
+  - **Expanded Mode**: Trio of radial gauges (CPU, GPU, RAM), live CPU sparkline graph, top resource-heavy processes, memory pressure, thermals & load averages, network speeds, Wi-Fi signal, disk metrics, and battery telemetry (Watts, Health %, Cycles).
+  - **Compact Mode**: Ultra-slim horizontal floating pill showing core stats (CPU, GPU, RAM, Top App badge, Network, Battery).
 - **Advanced System Diagnostics**:
+  - **Apple Silicon GPU Utilization**: Live GPU core usage % via native `IOAccelerator` Metal performance statistics.
+  - **Battery Health & Live Wattage**: Real-time power draw in Watts, Maximum Capacity Health %, and hardware cycle count via `AppleSmartBattery`.
   - **Top Resource Hogs**: Real-time top 3 processes with CPU usage % and mini load bars via Darwin `libproc`.
   - **Memory Pressure**: Native macOS VM pressure indicator (Normal 🟢 / Warning 🟡 / Critical 🔴) via kernel sysctl.
   - **Thermals & Health**: Real-time thermal headroom (Nominal, Fair, Hot, Throttling), 1-min system load average, and uptime.
   - **Wi-Fi Signal**: Live signal strength (RSSI in dBm) via `CoreWLAN`.
 - **Zero Heavy Dependencies**:
   - No Electron or web-view overhead.
-  - CPU & RAM queried directly via Darwin/Mach kernel C-APIs (`mach_host`, `host_statistics64`).
+  - CPU, GPU & RAM queried directly via Darwin/Mach kernel C-APIs (`mach_host`, `IOAccelerator`, `host_statistics64`).
   - Network throughput measured via BSD `getifaddrs`.
-  - Battery/power source tracked via `IOKit.ps`.
+  - Battery hardware telemetry tracked via `IOKit`.
 - **Accessory App**:
   - Does not crowd your macOS Dock (`LSUIElement = true`).
   - Adds a subtle menu bar icon to easily toggle the window in and out of view.

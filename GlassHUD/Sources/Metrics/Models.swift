@@ -30,6 +30,16 @@ public struct CPUStats: Sendable {
     }
 }
 
+public struct GPUStats: Sendable {
+    public var usagePercent: Double = 0.0
+    public var history: [Double] = []
+    
+    public init(usagePercent: Double = 0.0, history: [Double] = []) {
+        self.usagePercent = usagePercent
+        self.history = history
+    }
+}
+
 public enum MemoryPressureState: String, Sendable {
     case normal = "Normal"
     case warning = "Warning"
@@ -161,11 +171,29 @@ public struct BatteryStats: Sendable {
     public var levelPercent: Int = 0
     public var isCharging: Bool = false
     public var isPluggedIn: Bool = false
+    public var wattage: Double = 0.0
+    public var healthPercent: Double = 100.0
+    public var cycleCount: Int = 0
     
-    public init(hasBattery: Bool = false, levelPercent: Int = 0, isCharging: Bool = false, isPluggedIn: Bool = false) {
+    public var wattageFormatted: String {
+        wattage >= 0.1 ? String(format: "%.1fW", wattage) : ""
+    }
+    
+    public init(
+        hasBattery: Bool = false,
+        levelPercent: Int = 0,
+        isCharging: Bool = false,
+        isPluggedIn: Bool = false,
+        wattage: Double = 0.0,
+        healthPercent: Double = 100.0,
+        cycleCount: Int = 0
+    ) {
         self.hasBattery = hasBattery
         self.levelPercent = levelPercent
         self.isCharging = isCharging
         self.isPluggedIn = isPluggedIn
+        self.wattage = wattage
+        self.healthPercent = healthPercent
+        self.cycleCount = cycleCount
     }
 }

@@ -60,7 +60,7 @@ public final class FloatingWindowController: NSWindowController {
     
     public func updateWindowSize(isCompact: Bool, animate: Bool) {
         guard let window = self.window else { return }
-        let targetSize: NSSize = isCompact ? NSSize(width: 400, height: 72) : NSSize(width: 290, height: 500)
+        let targetSize: NSSize = isCompact ? NSSize(width: 440, height: 72) : NSSize(width: 290, height: 505)
         
         var currentFrame = window.frame
         let deltaX = targetSize.width - currentFrame.size.width

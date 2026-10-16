@@ -5,6 +5,7 @@ import Combine
 @MainActor
 public final class SystemMonitor: ObservableObject {
     @Published public var cpu: CPUStats = CPUStats()
+    @Published public var gpu: GPUStats = GPUStats()
     @Published public var memory: MemoryStats = MemoryStats()
     @Published public var network: NetworkStats = NetworkStats()
     @Published public var disk: DiskStats = DiskStats()
@@ -34,6 +35,7 @@ public final class SystemMonitor: ObservableObject {
     public var onCloseRequested: (() -> Void)?
     
     private let cpuMonitor = CPUMonitor()
+    private let gpuMonitor = GPUMonitor()
     private let memoryMonitor = MemoryMonitor()
     private let networkMonitor = NetworkMonitor()
     private let diskMonitor = DiskMonitor()
@@ -55,6 +57,7 @@ public final class SystemMonitor: ObservableObject {
     
     public func refreshAll() {
         self.cpu = self.cpuMonitor.sample()
+        self.gpu = self.gpuMonitor.sample()
         self.memory = self.memoryMonitor.sample()
         self.network = self.networkMonitor.sample()
         self.battery = self.batteryMonitor.sample()

@@ -132,15 +132,24 @@ public struct GlassHUDView: View {
                 }
             }
             
-            // Primary Gauges Row (CPU & RAM + Pressure)
-            HStack(spacing: 16) {
+            // Primary Gauges Row (CPU, GPU & RAM + Pressure)
+            HStack(spacing: 8) {
                 CircularGaugeView(
                     title: "CPU",
                     icon: "cpu",
                     percent: monitor.cpu.usagePercent,
                     subtitle: String(format: "Sys: %.0f%%", monitor.cpu.systemPercent),
                     gradient: [.cyan, .blue],
-                    size: 82
+                    size: 68
+                )
+                
+                CircularGaugeView(
+                    title: "GPU",
+                    icon: "display",
+                    percent: monitor.gpu.usagePercent,
+                    subtitle: "Metal",
+                    gradient: [.purple, .pink],
+                    size: 68
                 )
                 
                 CircularGaugeView(
@@ -148,8 +157,8 @@ public struct GlassHUDView: View {
                     icon: "memorychip",
                     percent: monitor.memory.usedPercent,
                     subtitle: monitor.memory.usedFormatted,
-                    gradient: [.purple, .indigo],
-                    size: 82,
+                    gradient: [.indigo, .blue],
+                    size: 68,
                     statusDotColor: monitor.memory.pressure.color,
                     statusDotText: monitor.memory.pressure.rawValue
                 )
@@ -198,12 +207,17 @@ public struct GlassHUDView: View {
                 
                 // Battery Card (shown if laptop / battery exists)
                 if monitor.battery.hasBattery {
+                    let powerSuffix = monitor.battery.wattageFormatted.isEmpty ? "" : " • \(monitor.battery.wattageFormatted)"
+                    let healthText = String(format: "%.0f%% Health", monitor.battery.healthPercent)
+                    let statusPrefix = monitor.battery.isCharging ? "Charging" : (monitor.battery.isPluggedIn ? "AC Power" : "On Battery")
+                    let secondaryDetails = "\(statusPrefix) • \(healthText)"
+                    
                     MetricCardView(
                         icon: monitor.battery.isCharging ? "bolt.batteryblock.fill" : "battery.100percent",
                         iconColor: monitor.battery.levelPercent > 20 ? .green : .red,
                         title: "BATTERY",
-                        primaryValue: "\(monitor.battery.levelPercent)%",
-                        secondaryValue: monitor.battery.isCharging ? "Charging" : (monitor.battery.isPluggedIn ? "AC Power" : "On Battery")
+                        primaryValue: "\(monitor.battery.levelPercent)%\(powerSuffix)",
+                        secondaryValue: secondaryDetails
                     )
                 }
             }
@@ -232,6 +246,20 @@ public struct GlassHUDView: View {
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(.cyan)
                 Text("\(Int(monitor.cpu.usagePercent.rounded()))%")
+                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+            }
+            
+            Divider()
+                .frame(height: 12)
+                .background(Color.white.opacity(0.15))
+            
+            // GPU Pill
+            HStack(spacing: 3) {
+                Image(systemName: "display")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(.pink)
+                Text("\(Int(monitor.gpu.usagePercent.rounded()))%")
                     .font(.system(size: 12, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
             }

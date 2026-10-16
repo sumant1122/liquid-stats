@@ -1,5 +1,6 @@
 import Foundation
 import Darwin
+import IOKit
 import CoreWLAN
 
 struct BenchResult {
@@ -45,7 +46,22 @@ let cpuBench = measure {
     }
 }
 
-// 2. Mach VM & Memory Pressure
+// 2. GPU Utilization (IOAccelerator)
+let gpuBench = measure {
+    let matchDict = IOServiceMatching("IOAccelerator")
+    var iterator: io_iterator_t = 0
+    if IOServiceGetMatchingServices(kIOMainPortDefault, matchDict, &iterator) == kIOReturnSuccess {
+        let service = IOIteratorNext(iterator)
+        if service != 0 {
+            var properties: Unmanaged<CFMutableDictionary>?
+            _ = IORegistryEntryCreateCFProperties(service, &properties, kCFAllocatorDefault, 0)
+            IOObjectRelease(service)
+        }
+        IOObjectRelease(iterator)
+    }
+}
+
+// 3. Mach VM & Memory Pressure
 let vmBench = measure {
     var vmStats = vm_statistics64()
     var count = mach_msg_type_number_t(MemoryLayout<vm_statistics64_data_t>.size / MemoryLayout<integer_t>.size)
@@ -59,7 +75,7 @@ let vmBench = measure {
     _ = sysctlbyname("kern.memorystatus_vm_pressure_level", &pressureLevel, &size, nil, 0)
 }
 
-// 3. BSD Network Interfaces (getifaddrs)
+// 4. BSD Network Interfaces (getifaddrs)
 let netBench = measure {
     var ifaddr: UnsafeMutablePointer<ifaddrs>?
     if getifaddrs(&ifaddr) == 0, let first = ifaddr {
@@ -71,7 +87,7 @@ let netBench = measure {
     }
 }
 
-// 4. System Health (Load Average & Uptime)
+// 5. System Health (Load Average & Uptime)
 let healthBench = measure {
     var loadavg = [Double](repeating: 0.0, count: 3)
     getloadavg(&loadavg, 3)
@@ -79,7 +95,7 @@ let healthBench = measure {
     _ = ProcessInfo.processInfo.thermalState
 }
 
-// 5. libproc Process Scanning (all system PIDs)
+// 6. libproc Process Scanning (all system PIDs)
 let procBench = measure(iterations: 20) {
     var pids = [pid_t](repeating: 0, count: 2048)
     let bytesUsed = proc_listpids(UInt32(PROC_ALL_PIDS), 0, &pids, Int32(MemoryLayout<pid_t>.size * pids.count))
@@ -95,13 +111,14 @@ let procBench = measure(iterations: 20) {
 print(String(format: "%-30@ | %10@ | %10@ | %10@", "Kernel / Darwin Operation", "Avg Latency", "Min", "Max"))
 print(String(repeating: "-", count: 68))
 print(String(format: "%-30@ | %7.2f µs | %7.2f µs | %7.2f µs", "Mach CPU Load Info", cpuBench.avg, cpuBench.min, cpuBench.max))
+print(String(format: "%-30@ | %7.2f µs | %7.2f µs | %7.2f µs", "IOAccelerator GPU Stats", gpuBench.avg, gpuBench.min, gpuBench.max))
 print(String(format: "%-30@ | %7.2f µs | %7.2f µs | %7.2f µs", "Mach VM & Memory Pressure", vmBench.avg, vmBench.min, vmBench.max))
 print(String(format: "%-30@ | %7.2f µs | %7.2f µs | %7.2f µs", "BSD Network (getifaddrs)", netBench.avg, netBench.min, netBench.max))
 print(String(format: "%-30@ | %7.2f µs | %7.2f µs | %7.2f µs", "Load Avg & Thermal State", healthBench.avg, healthBench.min, healthBench.max))
 print(String(format: "%-30@ | %7.2f ms | %7.2f ms | %7.2f ms", "libproc (All System PIDs)", procBench.avg / 1000.0, procBench.min / 1000.0, procBench.max / 1000.0))
 
 print("\n" + String(repeating: "=", count: 68))
-let totalKernelUs = cpuBench.avg + vmBench.avg + netBench.avg + healthBench.avg
+let totalKernelUs = cpuBench.avg + gpuBench.avg + vmBench.avg + netBench.avg + healthBench.avg
 let totalTickMs = (totalKernelUs / 1000.0) + (procBench.avg / 1000.0)
 print(String(format: "⚡ Total Core Metrics Sampling:  %.2f µs (%.3f ms)", totalKernelUs, totalKernelUs / 1000.0))
 print(String(format: "⚡ Total Full Tick (incl. Procs): %.2f ms", totalTickMs))

@@ -17,6 +17,7 @@ These calls execute as direct in-memory kernel traps without any process allocat
 | Kernel / Darwin Operation | API Used | Avg Latency | Min | Max |
 | :--- | :--- | :---: | :---: | :---: |
 | **CPU Ticks & Load** | `host_statistics(HOST_CPU_LOAD_INFO)` | **0.51 µs** | 0.46 µs | 0.88 µs |
+| **GPU Utilization** | `IOAccelerator` (`Device Utilization %`) | **1.25 ms** | 1.03 ms | 2.07 ms |
 | **VM & Memory Pressure** | `host_statistics64(HOST_VM_INFO64)` + `sysctl` | **1.46 µs** | 1.38 µs | 1.96 µs |
 | **System Load & Thermals** | `getloadavg()` + `thermalState` | **0.42 µs** | 0.29 µs | 9.04 µs |
 | **Network Throughput** | BSD `getifaddrs()` | **12.07 µs** | 11.67 µs | 14.21 µs |
